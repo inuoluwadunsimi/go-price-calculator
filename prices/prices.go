@@ -7,9 +7,10 @@ import (
 )
 
 type TaxIncludedPriceJob struct {
+	IOManager         fillemanager.FileManager
 	Taxrate           float64
 	InputPrices       []float64
-	TaxIncludedPrices map[string]float64
+	TaxIncludedPrices map[string]string
 }
 
 func (job *TaxIncludedPriceJob) Process() {
@@ -21,15 +22,17 @@ func (job *TaxIncludedPriceJob) Process() {
 		result[fmt.Sprintf("%.2f", price)] = fmt.Sprintf("%.2f", taxIncludedPrice)
 
 	}
-	fmt.Println(result)
+	job.TaxIncludedPrices = result
 
+	job.IOManager.WriteResult(job)
 }
 
 func (job *TaxIncludedPriceJob) loadData() {
 
-	lines, err := fillemanager.Readlines("prices.txt")
+	lines, err := job.IOManager.Readlines()
 	if err != nil {
 		fmt.Println(err)
+		return
 	}
 	prices, err := conversion.StringsToFloat(lines)
 
@@ -42,8 +45,9 @@ func (job *TaxIncludedPriceJob) loadData() {
 	job.InputPrices = prices
 }
 
-func NewTaxIncludedPriceJob(taxRate float64) *TaxIncludedPriceJob {
+func NewTaxIncludedPriceJob(fm fillemanager.FileManager, taxRate float64) *TaxIncludedPriceJob {
 	return &TaxIncludedPriceJob{
+		IOManager:   fm,
 		InputPrices: []float64{20, 30, 40},
 		Taxrate:     taxRate,
 	}

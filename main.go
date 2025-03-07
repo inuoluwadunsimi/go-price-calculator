@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+	"github.com/inuoluwadunsimi/price-calculator/fillemanager"
 	"github.com/inuoluwadunsimi/price-calculator/prices"
 )
 
@@ -12,7 +13,9 @@ func main() {
 	result := make(map[float64][]float64)
 
 	for _, taxRate := range taxRates {
-		priceJob := prices.NewTaxIncludedPriceJob(taxRate)
+		fm :=
+			fillemanager.New("prices.txt", fmt.Sprintf("result_%0f.json", taxRate*100))
+		priceJob := prices.NewTaxIncludedPriceJob(fm, taxRate)
 		priceJob.Process()
 	}
 
